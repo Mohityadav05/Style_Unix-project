@@ -3,11 +3,10 @@ services:
     name: backend
     env: node
     buildCommand: cd backend && npm install
-    startCommand: node server.js
+    startCommand: node backend/server.js
     envVars:
       - key: NODE_VERSION
         value: 20
-    plan: free
 
   - type: web
     name: frontend
