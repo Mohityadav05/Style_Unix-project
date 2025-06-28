@@ -3,13 +3,19 @@ services:
     name: backend
     env: node
     buildCommand: cd backend && npm install
-    startCommand: node backend/server.js
+    startCommand: node server.js
     envVars:
       - key: NODE_VERSION
         value: 20
+    buildFilter:
+      paths:
+        - backend/**
 
   - type: web
     name: frontend
     env: static
     buildCommand: cd frontend/vite-project && npm install && npm run build
     staticPublishPath: frontend/vite-project/dist
+    buildFilter:
+      paths:
+        - frontend/**
