@@ -12,7 +12,7 @@ const seedaccessories = require('./accessories');
 
 async function runSeeds() {
   try {
-    await mongoose.connect("mongodb://127.0.0.1:27017/live_project", {
+    await mongoose.connect(process.env.MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
@@ -28,12 +28,12 @@ async function runSeeds() {
     await seedkids();
     await seedaccessories();
 
-    console.log("🌱 All seeding done!");
+    console.log("All seeding done!");
   } catch (error) {
-    console.error("❌ Error seeding data:", error);
+    console.error("Error seeding data:", error);
   } finally {
     await mongoose.disconnect();
-    console.log("🔌 Disconnected from MongoDB");
+    console.log("Disconnected from MongoDB");
   }
 }
 

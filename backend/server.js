@@ -3,15 +3,18 @@ const app = express();
 const cors = require('cors');
 const mongoose = require('mongoose');
 const User = require('./Models/User');
-const path = require('path');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const Product = require('./Models/Product');
-const verify  = require('./middleware/verifyuser');
+const verify = require('./middleware/verifyuser');
 const cookieparser = require('cookie-parser');
 
+require('dotenv').config(); 
 
-const allowedOrigins = ['http://localhost:5173', 'http://localhost:5174'];
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://your-frontend-url.onrender.com' 
+];
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -27,15 +30,12 @@ app.use(cors({
 app.use(cookieparser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
 
-
-mongoose.connect('mongodb://127.0.0.1:27017/live_project', {
+mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
-}).then(() => console.log("MongoDB connected"))
-  .catch(err => console.error("MongoDB error:", err));
-
+}).then(() => console.log("✅ MongoDB connected"))
+  .catch(err => console.error("❌ MongoDB error:", err));
 
 app.post('/api/signup', (req, res) => {
   bcrypt.genSalt(10, (error, salt) => {
@@ -64,7 +64,7 @@ app.post('/api/login', async (req, res) => {
     const isPasswordValid = await bcrypt.compare(req.body.password, user.password);
     if (!isPasswordValid) return res.status(401).json({ message: "Invalid password" });
 
-    const token = jwt.sign({ email: user.email }, 'secretkey');
+    const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET || 'secretkey');
     res.cookie("token", token)
       .status(200)
       .json({ message: "Login successful", user });
@@ -73,7 +73,7 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-app.get('/api/products',verify ,async (req, res) => {
+app.get('/api/products', verify, async (req, res) => {
   const category = req.query.category;
   try {
     const products = await Product.find(category ? { category } : {});
@@ -96,14 +96,7 @@ app.post('/api/logout', (req, res) => {
   res.status(200).json({ message: 'Logout successful' });
 });
 
-
-app.use(express.static(path.join(__dirname, "../frontend/vite-project/dist")));
-
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/vite-project/dist/index.html"));
-});
-
-
-app.listen(3000, () => {
-  console.log('Server running at http://localhost:3000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
