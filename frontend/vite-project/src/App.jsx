@@ -19,7 +19,7 @@ import Bags from './components/Bags'
 import Cart from './components/Cart';
 import Buy from './components/Buy';
 import Payment from './components/Payment';
-import Search from './components/search';
+import Search from './components/Search';
 
 function App() {
   const [count, setCount] = useState(0)
