@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const Product = require('./Models/Product');
 const verify  = require('./middleware/verifyuser');
+const cookieparser = require('cookie-parser');
 
 
 const allowedOrigins = ['http://localhost:5173', 'http://localhost:5174'];
@@ -23,7 +24,7 @@ app.use(cors({
   credentials: true
 }));
 
-
+app.use(cookieparser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -72,7 +73,7 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-app.get('/api/products', async (req, res) => {
+app.get('/api/products',verify ,async (req, res) => {
   const category = req.query.category;
   try {
     const products = await Product.find(category ? { category } : {});
