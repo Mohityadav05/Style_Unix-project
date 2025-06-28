@@ -82,7 +82,7 @@ app.get('/api/products', async (req, res) => {
   }
 });
 
-app.get('/api/products/search', async (req, res) => {
+app.get('/api/products/search',verify, async (req, res) => {
   const query = req.query.q;
   const results = await Product.find({
     productName: { $regex: query, $options: 'i' }
