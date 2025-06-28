@@ -14,4 +14,3 @@ services:
     env: static
     buildCommand: cd frontend/vite-project && npm install && npm run build
     staticPublishPath: frontend/vite-project/dist
-    plan: free
