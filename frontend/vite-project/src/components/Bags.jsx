@@ -24,7 +24,7 @@ function Bags() {
   };
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/products?category=bags")
+    fetch("https://style-unix-backend.onrender.com/api/products?category=bags")
       .then((res) => res.json())
       .then((data) => setProducts(data))
       .catch((err) => console.error("Error fetching bags:", err));

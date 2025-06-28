@@ -24,7 +24,7 @@ function Kids() {
   };
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/products?category=kids")
+    fetch("https://style-unix-backend.onrender.com/api/products?category=kids")
       .then((res) => res.json())
       .then((data) => setProducts(data))
       .catch((err) => console.error("Error loading kids products:", err));

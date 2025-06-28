@@ -25,7 +25,7 @@ function Winter() {
   };
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/products?category=winter")
+    fetch("https://style-unix-backend.onrender.com/api/products?category=winter")
       .then((res) => res.json())
       .then((data) => {
         setProducts(data);

@@ -24,7 +24,7 @@ function Accessories() {
   };
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/products?category=accessories")
+    fetch("https://style-unix-backend.onrender.com/api/products?category=accessories")
       .then((res) => res.json())
       .then((data) => setProducts(data))
       .catch((err) => console.error("Failed to load accessories:", err));
