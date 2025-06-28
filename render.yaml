@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: backend
+    env: node
+    buildCommand: cd backend && npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+    plan: free
+
+  - type: web
+    name: frontend
+    env: static
+    buildCommand: cd frontend/vite-project && npm install && npm run build
+    staticPublishPath: frontend/vite-project/dist
+    plan: free
