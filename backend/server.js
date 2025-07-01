@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const Product = require('./Models/Product');
 const cookieparser = require('cookie-parser');
+const verify = require('./middleware/verifyuser');
 
 require('dotenv').config(); 
 
@@ -72,7 +73,7 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-app.get('/api/products', async (req, res) => {
+app.get('/api/products', verify,async (req, res) => {
   const category = req.query.category;
   try {
     const products = await Product.find(category ? { category } : {});
