@@ -31,7 +31,7 @@ app.use(cookieparser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-mongoose.connect(process.env.MONGODB_URI, {
+mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }).then(() => console.log("✅ MongoDB connected"))
@@ -73,7 +73,7 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-app.get('/api/products', verify,async (req, res) => {
+app.get('/api/products',async (req, res) => {
   const category = req.query.category;
   try {
     const products = await Product.find(category ? { category } : {});
