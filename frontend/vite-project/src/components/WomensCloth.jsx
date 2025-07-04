@@ -25,7 +25,7 @@ function WomensCloth() {
   };
 
   useEffect(() => {
-    fetch("https://style-unix-backend.onrender.com/api/products?category=womendress")
+    fetch("https://backend-gy4y.onrender.com/api/products?category=womendress")
       .then((res) => res.json())
       .then((data) => {
         setProducts(data);

@@ -24,7 +24,7 @@ function MenCloth() {
   };
 
   useEffect(() => {
-    fetch("https://style-unix-backend.onrender.com/api/products?category=men-clothing")
+    fetch("https://backend-gy4y.onrender.com/api/products?category=men-clothing")
       .then((res) => res.json())
       .then((data) => setProducts(data))
       .catch((err) => console.error("Error fetching men products:", err));

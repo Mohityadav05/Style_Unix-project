@@ -24,7 +24,7 @@ function Softtoy() {
   };
 
   useEffect(() => {
-    fetch("https://style-unix-backend.onrender.com/api/products?category=soft-toys")
+    fetch("https://backend-gy4y.onrender.com/api/products?category=soft-toys")
       .then((res) => res.json())
       .then((data) => setProducts(data))
       .catch((err) => console.error("Error fetching soft toys:", err));

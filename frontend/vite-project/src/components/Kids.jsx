@@ -24,7 +24,7 @@ function Kids() {
   };
 
   useEffect(() => {
-    fetch("https://style-unix-backend.onrender.com/api/products?category=kids")
+    fetch("https://backend-gy4y.onrender.com/api/products?category=kids")
       .then((res) => res.json())
       .then((data) => setProducts(data))
       .catch((err) => console.error("Error loading kids products:", err));

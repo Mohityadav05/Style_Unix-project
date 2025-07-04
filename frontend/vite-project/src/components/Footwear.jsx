@@ -24,7 +24,7 @@ function Footwear() {
   };
 
   useEffect(() => {
-    fetch("https://style-unix-backend.onrender.com/api/products?category=footwear")
+    fetch("https://backend-gy4y.onrender.com/api/products?category=footwear")
       .then((res) => res.json())
       .then((data) => setProducts(data))
       .catch((err) => console.error("Failed to fetch footwear:", err));

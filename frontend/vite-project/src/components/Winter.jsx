@@ -25,7 +25,7 @@ function Winter() {
   };
 
   useEffect(() => {
-    fetch("https://style-unix-backend.onrender.com/api/products?category=winter")
+    fetch("https://backend-gy4y.onrender.com/api/products?category=winter")
       .then((res) => res.json())
       .then((data) => {
         setProducts(data);

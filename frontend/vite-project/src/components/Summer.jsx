@@ -24,7 +24,7 @@ function Summer() {
   };
 
   useEffect(() => {
-    fetch("https://style-unix-backend.onrender.com/api/products?category=summer")
+    fetch("https://backend-gy4y.onrender.com/api/products?category=summer")
       .then((res) => res.json())
       .then((data) => setProducts(data))
       .catch((err) => console.error("Error fetching summer products:", err));
