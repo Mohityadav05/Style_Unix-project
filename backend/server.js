@@ -37,7 +37,7 @@ mongoose.connect(process.env.MONGO_URI, {
 }).then(() => console.log("✅ MongoDB connected"))
   .catch(err => console.error("❌ MongoDB error:", err));
   
-  const seedmendress = require('./seeds/mensdress'); // only one seeder for test
+  const seedmendress = require('./seeds/mensdress');
 
 app.get('/api/seed/men', async (req, res) => {
   try {
