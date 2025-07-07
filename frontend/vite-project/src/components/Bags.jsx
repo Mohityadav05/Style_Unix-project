@@ -8,7 +8,7 @@ function Bags() {
   const [selectedPriceRange, setSelectedPriceRange] = useState("all");
   const [selectedSize, setSelectedSize] = useState("all");
 
-  const isLoggedIn = localStorage.getItem("token");
+  const isLoggedIn = !!localStorage.getItem("token");
 
   const handleAddToCart = (product) => {
     if (!isLoggedIn) {
@@ -25,22 +25,28 @@ function Bags() {
 
   useEffect(() => {
     fetch("https://backend-gy4y.onrender.com/api/products?category=bags")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch bags");
+        return res.json();
+      })
       .then((data) => setProducts(data))
       .catch((err) => console.error("Error fetching bags:", err));
   }, []);
 
   const filteredProducts = products.filter((product) => {
-    const matchesPrice =
+    const price = product.price;
+    const size = product.size?.toLowerCase();
+
+    const matchPrice =
       selectedPriceRange === "all" ||
-      (selectedPriceRange === "0-500" && product.price <= 500) ||
-      (selectedPriceRange === "500-1000" && product.price > 500 && product.price <= 1000) ||
-      (selectedPriceRange === "1000-2000" && product.price > 1000 && product.price <= 2000);
+      (selectedPriceRange === "0-500" && price <= 500) ||
+      (selectedPriceRange === "500-1000" && price > 500 && price <= 1000) ||
+      (selectedPriceRange === "1000-2000" && price > 1000 && price <= 2000);
 
-    const matchesSize =
-      selectedSize === "all" || product.size?.toLowerCase() === selectedSize.toLowerCase();
+    const matchSize =
+      selectedSize === "all" || size === selectedSize.toLowerCase();
 
-    return matchesPrice && matchesSize;
+    return matchPrice && matchSize;
   });
 
   return (
@@ -79,7 +85,14 @@ function Bags() {
         ) : (
           filteredProducts.map((product, index) => (
             <div className="product-item" key={index}>
-              <img src={product.image} alt={product.productName} />
+              <img
+                src={product.image}
+                alt={product.productName}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/placeholder.png"; // fallback image
+                }}
+              />
               <h3>{product.productName}</h3>
               <p>₹{product.price}</p>
               {product.size && <p>Size: {product.size}</p>}

@@ -25,7 +25,10 @@ function Softtoy() {
 
   useEffect(() => {
     fetch("https://backend-gy4y.onrender.com/api/products?category=soft-toys")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch soft toys");
+        return res.json();
+      })
       .then((data) => setProducts(data))
       .catch((err) => console.error("Error fetching soft toys:", err));
   }, []);
@@ -82,7 +85,14 @@ function Softtoy() {
         ) : (
           filteredProducts.map((product, index) => (
             <div className="product-item" key={index}>
-              <img src={product.image} alt={product.productName} />
+              <img
+                src={product.image}
+                alt={product.productName}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/placeholder.png"; // fallback image
+                }}
+              />
               <h3>{product.productName}</h3>
               <p>₹{product.price}</p>
               {product.size && <p>Size: {product.size}</p>}

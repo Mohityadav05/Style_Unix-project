@@ -25,21 +25,27 @@ function Accessories() {
 
   useEffect(() => {
     fetch("https://backend-gy4y.onrender.com/api/products?category=accessories")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch accessories");
+        return res.json();
+      })
       .then((data) => setProducts(data))
-      .catch((err) => console.error("Failed to load accessories:", err));
+      .catch((err) => console.error("❌ Failed to load accessories:", err));
   }, []);
 
   const filteredProducts = products.filter((product) => {
+    const price = product.price;
+    const size = product.size?.toLowerCase();
+
     const matchesPrice =
       selectedPriceRange === "all" ||
-      (selectedPriceRange === "0-500" && product.price <= 500) ||
-      (selectedPriceRange === "500-1000" && product.price > 500 && product.price <= 1000) ||
-      (selectedPriceRange === "1000-2000" && product.price > 1000 && product.price <= 2000) ||
-      (selectedPriceRange === "2000-5000" && product.price > 2000 && product.price <= 5000);
+      (selectedPriceRange === "0-500" && price <= 500) ||
+      (selectedPriceRange === "500-1000" && price > 500 && price <= 1000) ||
+      (selectedPriceRange === "1000-2000" && price > 1000 && price <= 2000) ||
+      (selectedPriceRange === "2000-5000" && price > 2000 && price <= 5000);
 
     const matchesSize =
-      selectedSize === "all" || product.size?.toLowerCase() === selectedSize.toLowerCase();
+      selectedSize === "all" || size === selectedSize.toLowerCase();
 
     return matchesPrice && matchesSize;
   });
@@ -82,7 +88,14 @@ function Accessories() {
         ) : (
           filteredProducts.map((product, index) => (
             <div className="product-item" key={index}>
-              <img src={product.image} alt={product.productName} />
+              <img
+                src={product.image}
+                alt={product.productName}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/placeholder.png"; // fallback image
+                }}
+              />
               <h3>{product.productName}</h3>
               <p>₹{product.price}</p>
               <p>Size: {product.size}</p>

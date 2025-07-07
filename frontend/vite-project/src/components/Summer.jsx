@@ -25,7 +25,10 @@ function Summer() {
 
   useEffect(() => {
     fetch("https://backend-gy4y.onrender.com/api/products?category=summer")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch summer products");
+        return res.json();
+      })
       .then((data) => setProducts(data))
       .catch((err) => console.error("Error fetching summer products:", err));
   }, []);
@@ -40,7 +43,9 @@ function Summer() {
       (selectedPriceRange === "500-1000" && price > 500 && price <= 1000) ||
       (selectedPriceRange === "1000-2000" && price > 1000 && price <= 2000);
 
-    const matchSize = selectedSize === "all" || size === selectedSize;
+    const matchSize =
+      selectedSize === "all" ||
+      String(size).toLowerCase() === selectedSize.toLowerCase();
 
     return matchPrice && matchSize;
   });
@@ -85,7 +90,14 @@ function Summer() {
         ) : (
           filteredProducts.map((product, index) => (
             <div className="product-item" key={index}>
-              <img src={product.image} alt={product.productName} />
+              <img
+                src={product.image}
+                alt={product.productName}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/placeholder.png";
+                }}
+              />
               <h3>{product.productName}</h3>
               <p>₹{product.price}</p>
               <p>Size: {product.size}</p>

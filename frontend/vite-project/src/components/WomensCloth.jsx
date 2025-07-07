@@ -7,7 +7,7 @@ function WomensCloth() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedPriceRange, setSelectedPriceRange] = useState("all");
-  const [selectedSize, setSelectedSize] = useState("all"); 
+  const [selectedSize, setSelectedSize] = useState("all");
 
   const isLoggedIn = localStorage.getItem("token");
 
@@ -26,7 +26,10 @@ function WomensCloth() {
 
   useEffect(() => {
     fetch("https://backend-gy4y.onrender.com/api/products?category=womendress")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch women's products");
+        return res.json();
+      })
       .then((data) => {
         setProducts(data);
         setLoading(false);
@@ -42,16 +45,14 @@ function WomensCloth() {
     const size = product.size;
 
     const priceMatch =
-      selectedPriceRange === "0-500"
-        ? price <= 500
-        : selectedPriceRange === "500-1000"
-        ? price > 500 && price <= 1000
-        : selectedPriceRange === "1000-2000"
-        ? price > 1000 && price <= 2000
-        : true;
+      selectedPriceRange === "all" ||
+      (selectedPriceRange === "0-500" && price <= 500) ||
+      (selectedPriceRange === "500-1000" && price > 500 && price <= 1000) ||
+      (selectedPriceRange === "1000-2000" && price > 1000 && price <= 2000);
 
     const sizeMatch =
-      selectedSize === "all" ? true : size === selectedSize;
+      selectedSize === "all" ||
+      String(size).toLowerCase() === selectedSize.toLowerCase();
 
     return priceMatch && sizeMatch;
   });
@@ -94,10 +95,17 @@ function WomensCloth() {
         ) : filteredProducts.length > 0 ? (
           filteredProducts.map((product, index) => (
             <div className="product-item" key={index}>
-              <img src={product.image} alt={product.productName} />
+              <img
+                src={product.image}
+                alt={product.productName}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/placeholder.png";
+                }}
+              />
               <h3>{product.productName}</h3>
               <p>₹{product.price}</p>
-              <p>Size: {product.size}</p> 
+              <p>Size: {product.size}</p>
               <button className="add-to-cart" onClick={() => handleAddToCart(product)}>
                 Add to Cart
               </button>

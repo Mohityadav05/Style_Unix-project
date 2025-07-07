@@ -25,12 +25,18 @@ function Footwear() {
 
   useEffect(() => {
     fetch("https://backend-gy4y.onrender.com/api/products?category=footwear")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch footwear products");
+        return res.json();
+      })
       .then((data) => setProducts(data))
       .catch((err) => console.error("Failed to fetch footwear:", err));
   }, []);
+
   const filteredProducts = products.filter((product) => {
     const price = product.price;
+    const size = product.size?.toString().toLowerCase();
+
     const matchesPrice =
       selectedPriceRange === "all" ||
       (selectedPriceRange === "0-500" && price <= 500) ||
@@ -39,7 +45,7 @@ function Footwear() {
 
     const matchesSize =
       selectedSize === "all" ||
-      (product.size && product.size.toLowerCase() === selectedSize.toLowerCase());
+      (size && size === selectedSize.toLowerCase());
 
     return matchesPrice && matchesSize;
   });
@@ -48,6 +54,7 @@ function Footwear() {
     <div className="footwear-container">
       <div className="filter-container">
         <button className="home" onClick={() => navigate("/")}>Home</button>
+
         <select
           className="filter-dropdown"
           value={selectedPriceRange}
@@ -58,6 +65,7 @@ function Footwear() {
           <option value="500-1000">₹500 - ₹1000</option>
           <option value="1000-2000">₹1000 - ₹2000</option>
         </select>
+
         <select
           className="filter-dropdown"
           value={selectedSize}
@@ -80,14 +88,18 @@ function Footwear() {
         ) : (
           filteredProducts.map((product, index) => (
             <div className="product-item" key={index}>
-              <img src={product.image} alt={product.productName} />
+              <img
+                src={product.image}
+                alt={product.productName}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/placeholder.png";
+                }}
+              />
               <h3>{product.productName}</h3>
               <p>₹{product.price}</p>
               <p>Size: {product.size || "N/A"}</p>
-              <button
-                className="add-to-cart"
-                onClick={() => handleAddToCart(product)}
-              >
+              <button className="add-to-cart" onClick={() => handleAddToCart(product)}>
                 Add to Cart
               </button>
             </div>
