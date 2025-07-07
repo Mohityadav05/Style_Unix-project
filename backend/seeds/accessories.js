@@ -7,70 +7,70 @@ async function seedaccessoris() {
       productName: "Leather Wallet",
       description: "Genuine leather wallet with multiple compartments.",
       price: 599,
-      image: "/purse.png",
+      image: "/images/purse.png",
       size: "S"
     },
     {
       productName: "Sunglasses",
       description: "Stylish UV-protected sunglasses for all seasons.",
       price: 899,
-      image: "/sunglasses.png",
+      image: "/images/sunglasses.png",
       size: "Universal"
     },
     {
       productName: "Wrist Watch",
       description: "Elegant wrist watch with leather strap.",
       price: 2499,
-      image: "/wristwatch.png",
+      image: "/images/wristwatch.png",
       size: "Universal"
     },
     {
       productName: "Backpack",
       description: "Spacious and durable backpack for daily use.",
       price: 1499,
-      image: "/bagpack.png",
+      image: "/images/bagpack.png",
       size: "M"
     },
     {
       productName: "Cufflinks",
       description: "Classic cufflinks for formal wear.",
       price: 799,
-      image: "/cufflinks.png",
+      image: "/images/cufflinks.png",
       size: "S"
     },
     {
       productName: "Travel Bag",
       description: "Lightweight and spacious travel bag.",
       price: 1999,
-      image: "/travelbag.png",
+      image: "/images/travelbag.png",
       size: "L"
     },
     {
       productName: "Keychain",
       description: "Durable keychain with leather strap.",
       price: 199,
-      image: "/keychain.png",
+      image: "/images/keychain.png",
       size: "S"
     },
     {
       productName: "Hiking Hat",
       description: "Protective hat suitable for trekking and hiking.",
       price: 449,
-      image: "/hikinghat.png",
+      image: "/images/hikinghat.png",
       size: "Universal"
     },
     {
       productName: "Phone Pouch",
       description: "Multi-functional phone pouch with card slots.",
       price: 299,
-      image: "/phonepouch.png",
+      image: "/images/phonepouch.png",
       size: "S"
     },
     {
       productName: "Laptop Sleeve",
       description: "Cushioned laptop sleeve with zipper.",
       price: 999,
-      image: "/laptopsleves.png",
+      image: "/images/laptopsleves.png",
       size: "M"
     }
   ].map(product => ({
