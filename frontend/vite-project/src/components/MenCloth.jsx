@@ -25,26 +25,23 @@ function MenCloth() {
 
   useEffect(() => {
     fetch("https://backend-gy4y.onrender.com/api/products?category=men-clothing")
-      .then((res) => res.json())
-      .then((data) => setProducts(data))
-      .catch((err) => console.error("Error fetching men products:", err));
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        console.log("✅ Products received:", data);
+        setProducts(data);
+      })
+      .catch((err) => {
+        console.error("❌ Error fetching men products:", err);
+      });
   }, []);
 
-  const filteredProducts = products.filter((product) => {
-    const price = product.price;
-    const size = product.size;
-
-    const matchesPrice =
-      selectedPriceRange === "all" ||
-      (selectedPriceRange === "0-500" && price <= 500) ||
-      (selectedPriceRange === "500-1000" && price > 500 && price <= 1000) ||
-      (selectedPriceRange === "1000-2000" && price > 1000 && price <= 2000);
-
-    const matchesSize =
-      selectedSize === "all" || size.toLowerCase() === selectedSize.toLowerCase();
-
-    return matchesPrice && matchesSize;
-  });
+  // TEMPORARILY REMOVE FILTERING
+  const filteredProducts = products;
 
   return (
     <div className="men-cloth">
@@ -83,11 +80,18 @@ function MenCloth() {
 
       <div className="product-container">
         {filteredProducts.length === 0 ? (
-          <p>No men's clothing found in this range.</p>
+          <p>No men's clothing found.</p>
         ) : (
           filteredProducts.map((product, index) => (
             <div className="product-item" key={index}>
-              <img src={product.image} alt={product.productName} />
+              <img
+                src={product.image}
+                alt={product.productName}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/placeholder.png"; // fallback image
+                }}
+              />
               <h3>{product.productName}</h3>
               <p>Size: {product.size}</p>
               <p>₹{product.price}</p>
