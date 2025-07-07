@@ -36,6 +36,19 @@ mongoose.connect(process.env.MONGO_URI, {
   useUnifiedTopology: true
 }).then(() => console.log("✅ MongoDB connected"))
   .catch(err => console.error("❌ MongoDB error:", err));
+  
+  const seedmendress = require('./seeds/mensdress'); // only one seeder for test
+
+app.get('/api/seed/men', async (req, res) => {
+  try {
+    await seedmendress();
+    res.send("✅ Men's clothing data seeded");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("❌ Failed to seed men's clothing");
+  }
+});
+
 
 app.post('/api/signup', (req, res) => {
   bcrypt.genSalt(10, (error, salt) => {
