@@ -13,7 +13,7 @@ require('dotenv').config();
 
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://your-frontend-url.onrender.com' 
+  'https://frontend-agyt.onrender.com'
 ];
 
 app.use(cors({
