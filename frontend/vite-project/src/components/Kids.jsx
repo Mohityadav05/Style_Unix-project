@@ -30,20 +30,8 @@ function Kids() {
       .catch((err) => console.error("Error loading kids products:", err));
   }, []);
 
-  const filteredProducts = products.filter((product) => {
-    const price = product.price;
-
-    const matchesPrice =
-      selectedPriceRange === "all" ||
-      (selectedPriceRange === "0-500" && price <= 500) ||
-      (selectedPriceRange === "500-1000" && price > 500 && price <= 1000) ||
-      (selectedPriceRange === "1000-2000" && price > 1000 && price <= 2000);
-
-    const matchesSize =
-      selectedSize === "all" || product.size === selectedSize;
-
-    return matchesPrice && matchesSize;
-  });
+  const filteredProducts = products;
+   
 
   return (
     <div className="kids-cloth">
