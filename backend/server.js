@@ -135,6 +135,15 @@ app.post('/api/logout', (req, res) => {
 app.get("/", (req, res) => {
   res.send("API is working!");
 });
+app.get('/api/test/categories', async (req, res) => {
+  try {
+    const categories = await Product.distinct("category");
+    res.json(categories);
+  } catch (err) {
+    res.status(500).json({ error: "Error fetching categories", details: err.message });
+  }
+});
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
