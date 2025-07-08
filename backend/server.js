@@ -47,23 +47,23 @@ const seedbags = require('./seeds/bags');
 const seedaccessories = require('./seeds/accessories');
 
 
-app.get('/api/seed/all', async (req, res) => {
-  try {
-    await seedmendress();
-    await seedfootwear();
-    await seedwinter();
-    await seedwomendress();
-    await seedsummer();
-    await seedsofttoy();
-    await seedkids();
-    await seedbags();
-    await seedaccessories();
-    res.send("✅ All product categories seeded successfully");
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("❌ Failed to seed products");
-  }
-});
+//app.get('/api/seed/all', async (req, res) => {
+//  try {
+//    await seedmendress();
+//    await seedfootwear();
+//    await seedwinter();
+//    await seedwomendress();
+//    await seedsummer();
+//   await seedsofttoy();
+//    await seedkids();
+//    await seedbags();
+//    await seedaccessories();
+//    res.send("✅ All product categories seeded successfully");
+//  } catch (err) {
+//    console.error(err);
+//    res.status(500).send("❌ Failed to seed products");
+//  }
+//});
 
 
 app.post('/api/signup', (req, res) => {
