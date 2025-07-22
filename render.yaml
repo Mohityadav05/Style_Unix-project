@@ -1,21 +1,25 @@
 services:
   - type: web
-    name: backend
+    name: fullstack-backend
     env: node
-    buildCommand: cd backend && npm install
-    startCommand: node server.js
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeploy: true
     envVars:
-      - key: NODE_VERSION
-        value: 20
-    buildFilter:
-      paths:
-        - backend/**
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        value: mongodb+srv://mohit_yadav:Captain1%40@cluster0.elsqwgt.mongodb.net/Cluster0?retryWrites=true&w=majority&appName=Cluster0
+      - key: JWT_SECRET
+        value: your_jwt_secret_key
+      - key: PORT
+        value: 5000
 
-  - type: web
-    name: frontend
-    env: static
-    buildCommand: cd frontend/vite-project && npm install && npm run build
-    staticPublishPath: frontend/vite-project/dist
-    buildFilter:
-      paths:
-        - frontend/**
+  - type: static
+    name: fullstack-frontend
+    rootDir: frontend
+    buildCommand: cd vite-project && npm run build
+    staticPublishPath: vite-project/dist
+    autoDeploy: true
