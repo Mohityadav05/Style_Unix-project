@@ -28,7 +28,7 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(express.static(path.join(__dirname, 'frontend', 'dist')));
+app.use(express.static(path.join(__dirname, 'frontend','vite-project','dist')));
 app.use(cookieparser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -147,7 +147,7 @@ app.get('/api/test/categories', async (req, res) => {
 });
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'dist', 'index.html'));
+  res.sendFile(path.join(__dirname, 'frontend','vite-project','dist', 'index.html'));
 });
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
