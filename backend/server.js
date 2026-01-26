@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const Product = require('./Models/Product');
 const cookieparser = require('cookie-parser');
+const path = require('path');
 const verify = require('./middleware/verifyuser');
 
 require('dotenv').config(); 
@@ -27,6 +28,7 @@ app.use(cors({
   credentials: true
 }));
 
+app.use(express.static(path.join(__dirname, 'frontend', 'dist')));
 app.use(cookieparser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -144,7 +146,9 @@ app.get('/api/test/categories', async (req, res) => {
   }
 });
 
-
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'dist', 'index.html'));
+});
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
