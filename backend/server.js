@@ -6,30 +6,30 @@ const User = require('./Models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const Product = require('./Models/Product');
-const cookieparser = require('cookie-parser');
+const cookieParser = require('cookie-parser');
 const path = require('path');
 const verify = require('./middleware/verifyuser');
 
 require('dotenv').config(); 
 
+
 const allowedOrigins = [
-  'http://localhost:5173',
-  'https://frontend-agyt.onrender.com'
+  'http://localhost:5173',                 // local dev
+  'https://frontend-agyt.onrender.com'     // deployed frontend
 ];
 
 app.use(cors({
-  origin: function (origin, callback) {
+  origin: function(origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
+  credentials: true,  
 }));
 
-app.use(express.static(path.join(__dirname, 'frontend','vite-project','dist')));
-app.use(cookieparser());
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -37,40 +37,12 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected"))
   .catch(err => console.error("❌ MongoDB error:", err));
 
-
-const seedmendress = require('./seeds/mensdress');
-const seedfootwear = require('./seeds/footwear');
-const seedwinter = require('./seeds/winter');
-const seedwomendress = require('./seeds/womendress');
-const seedsummer = require('./seeds/summer');
-const seedsofttoy = require('./seeds/softtoy');
-const seedkids = require('./seeds/kids');
-const seedbags = require('./seeds/bags');
-const seedaccessories = require('./seeds/accessories');
-
-
-//app.get('/api/seed/all', async (req, res) => {
-//  try {
-//    await seedmendress();
-//    await seedfootwear();
-//    await seedwinter();
-//    await seedwomendress();
-//    await seedsummer();
-//   await seedsofttoy();
-//    await seedkids();
-//    await seedbags();
-//    await seedaccessories();
-//    res.send("✅ All product categories seeded successfully");
-//  } catch (err) {
-//    console.error(err);
-//    res.status(500).send("❌ Failed to seed products");
-//  }
-//});
-
+const buildPath = path.resolve(__dirname, '../frontend/vite-project/dist');
+app.use(express.static(buildPath));
 
 app.post('/api/signup', (req, res) => {
-  bcrypt.genSalt(10, (error, salt) => {
-    bcrypt.hash(req.body.password, salt, async (error, hash) => {
+  bcrypt.genSalt(10, (err, salt) => {
+    bcrypt.hash(req.body.password, salt, async (err, hash) => {
       try {
         const user = await User.create({
           name: req.body.name,
@@ -81,12 +53,11 @@ app.post('/api/signup', (req, res) => {
         });
         res.status(200).json({ message: "Signup successful", user });
       } catch (err) {
-        res.status(500).json({ message: "Signup failed" });
+        res.status(500).json({ message: "Signup failed", error: err.message });
       }
     });
   });
 });
-
 
 app.post('/api/login', async (req, res) => {
   try {
@@ -96,24 +67,41 @@ app.post('/api/login', async (req, res) => {
     const isPasswordValid = await bcrypt.compare(req.body.password, user.password);
     if (!isPasswordValid) return res.status(401).json({ message: "Invalid password" });
 
-    const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET || 'secretkey');
-    res.cookie("token", token).status(200).json({ message: "Login successful", user });
+    const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET || 'secretkey', {
+      expiresIn: '1d'
+    });
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', 
+      sameSite: 'none',  
+      maxAge: 24 * 60 * 60 * 1000 
+    });
+
+    res.status(200).json({ message: "Login successful", user });
   } catch (err) {
     res.status(500).json({ message: "Login failed", error: err.message });
   }
 });
 
+app.post('/api/logout', (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'none'
+  });
+  res.status(200).json({ message: "Logout successful" });
+});
 
 app.get('/api/products', async (req, res) => {
   const category = req.query.category;
   try {
     const products = await Product.find(category ? { category } : {});
     res.json(products);
-  } catch (error) {
+  } catch (err) {
     res.status(500).json({ error: "Failed to fetch products" });
   }
 });
-
 
 app.get('/api/products/search', async (req, res) => {
   const query = req.query.q;
@@ -122,21 +110,11 @@ app.get('/api/products/search', async (req, res) => {
       productName: { $regex: query, $options: 'i' }
     });
     res.json(results);
-  } catch (error) {
+  } catch (err) {
     res.status(500).json({ error: "Failed to search products" });
   }
 });
 
-
-app.post('/api/logout', (req, res) => {
-  res.clearCookie("token", "");
-  res.status(200).json({ message: 'Logout successful' });
-});
-
-
-app.get("/", (req, res) => {
-  res.send("API is working!");
-});
 app.get('/api/test/categories', async (req, res) => {
   try {
     const categories = await Product.distinct("category");
@@ -147,9 +125,8 @@ app.get('/api/test/categories', async (req, res) => {
 });
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend','vite-project','dist', 'index.html'));
+  res.sendFile(path.join(buildPath, 'index.html'));
 });
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
