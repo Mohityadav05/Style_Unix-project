@@ -37,7 +37,7 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected"))
   .catch(err => console.error("❌ MongoDB error:", err));
 
-const buildPath = path.resolve(__dirname, '../frontend/vite-project/dist');
+const buildPath = path.resolve(__dirname, 'frontend-build');
 app.use(express.static(buildPath));
 
 app.post('/api/signup', (req, res) => {
