@@ -14,20 +14,26 @@ require('dotenv').config();
 
 
 const allowedOrigins = [
-  'http://localhost:5173',                 // local dev
-  'https://frontend-agyt.onrender.com'     // deployed frontend
+  'http://localhost:5173',
+  'https://frontend-agyt.onrender.com'
 ];
 
 app.use(cors({
   origin: function(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
+    // allow requests with no origin (like Postman or server-to-server)
+    if (!origin) return callback(null, true);
+
+    // allow if origin is in allowedOrigins
+    if (allowedOrigins.some(o => origin.startsWith(o))) {
+      return callback(null, true);
     }
+
+    // otherwise block
+    return callback(new Error(`CORS error: Origin ${origin} not allowed`));
   },
-  credentials: true,  
+  credentials: true
 }));
+
 
 app.use(cookieParser());
 app.use(express.json());
