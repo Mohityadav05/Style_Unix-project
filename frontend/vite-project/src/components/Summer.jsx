@@ -24,7 +24,7 @@ function Summer() {
   };
 
   useEffect(() => {
-    fetch("https://backend-gy4y.onrender.com/api/products?category=summer")
+    fetch(`${import.meta.env.VITE_API_URL}/api/products?category=summer`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch summer products");
         return res.json();
@@ -89,14 +89,16 @@ function Summer() {
           <p>No summer products found.</p>
         ) : (
           filteredProducts.map((product, index) => (
-            <div className="product-item" key={index}>
+            <div className="product-item" key={product._id || index}>
               <img
                 src={product.image}
                 alt={product.productName}
+                loading="lazy"
                 onError={(e) => {
                   e.target.onerror = null;
                   e.target.src = "/placeholder.png";
                 }}
+                style={{ minHeight: '200px', backgroundColor: '#f0f0f0' }}
               />
               <h3>{product.productName}</h3>
               <p>₹{product.price}</p>

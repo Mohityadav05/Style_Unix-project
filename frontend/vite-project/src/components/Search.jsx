@@ -7,7 +7,7 @@ function Search() {
   const [results, setResults] = useState([]);
 
   useEffect(() => {
-    fetch(`https://backend-gy4y.onrender.com/api/products/search?q=${query}`)
+    fetch(`${import.meta.env.VITE_API_URL}/api/products/search?q=${query}`)
       .then((res) => res.json())
       .then((data) => setResults(data));
   }, [query]);

@@ -14,7 +14,7 @@ function Signup() {
     e.preventDefault();
 
     try {
-      const response = await fetch('https://backend-gy4y.onrender.com/api/signup', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, name, username, phone }),
@@ -24,7 +24,7 @@ function Signup() {
       alert(data.message);
       if (data.message === 'Signup successful') {
         localStorage.setItem("isSignup", "true");
-        navigate('/login'); 
+        navigate('/login');
       }
     } catch (err) {
       console.error('Signup failed:', err);

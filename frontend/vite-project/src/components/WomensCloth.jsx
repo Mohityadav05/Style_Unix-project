@@ -25,7 +25,7 @@ function WomensCloth() {
   };
 
   useEffect(() => {
-    fetch("https://backend-gy4y.onrender.com/api/products?category=womendress")
+    fetch(`${import.meta.env.VITE_API_URL}/api/products?category=womendress`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch women's products");
         return res.json();
@@ -94,14 +94,16 @@ function WomensCloth() {
           <p>Loading women’s clothing...</p>
         ) : filteredProducts.length > 0 ? (
           filteredProducts.map((product, index) => (
-            <div className="product-item" key={index}>
+            <div className="product-item" key={product._id || index}>
               <img
                 src={product.image}
                 alt={product.productName}
+                loading="lazy"
                 onError={(e) => {
                   e.target.onerror = null;
                   e.target.src = "/placeholder.png";
                 }}
+                style={{ minHeight: '200px', backgroundColor: '#f0f0f0' }}
               />
               <h3>{product.productName}</h3>
               <p>₹{product.price}</p>

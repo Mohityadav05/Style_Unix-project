@@ -15,27 +15,41 @@ function Navbar() {
     }
   };
 
-  const handlelogin=()=>{
+  const isLoggedIn = !!localStorage.getItem("token");
+
+  const handlelogin = () => {
     navigate('/login');
   }
-  const handlehome=()=>{
+
+  const handlehome = () => {
     navigate('/');
   }
-  const handleCart=()=>{
+
+  const handleCart = () => {
     navigate('/Cart');
   }
-  const handlelogout=()=>{
-    navigate('/login')
+
+  const handlelogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    alert("Logged out successfully");
+    navigate('/login');
+    window.location.reload(); // Force refresh to update UI state
   }
+
   return (
     <>
       <nav className="navbar">
         <div className="logo"></div>
         <button className="cart" onClick={handlehome}><div className="homebutton"></div></button>
-        <input type="text" className="search-bar" placeholder="Search..." value={query} onChange={(e) => setQuery(e.target.value)}onKeyDown={handleSearch}/>
+        <input type="text" className="search-bar" placeholder="Search..." value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={handleSearch} />
         <button className="cart" onClick={handleCart}><div className="cart-icon  "></div></button>
-        <button className="auth-button" onClick={handlelogin}>Login</button>
-        <button className="auth-button" onClick={handlelogout}>Logout</button>
+
+        {!isLoggedIn ? (
+          <button className="auth-button" onClick={handlelogin}>Login</button>
+        ) : (
+          <button className="auth-button" onClick={handlelogout}>Logout</button>
+        )}
       </nav>
     </>
   );

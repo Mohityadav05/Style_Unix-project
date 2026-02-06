@@ -24,7 +24,7 @@ function MenCloth() {
   };
 
   useEffect(() => {
-    fetch("https://backend-gy4y.onrender.com/api/products?category=men-clothing")
+    fetch(`${import.meta.env.VITE_API_URL}/api/products?category=men-clothing`)
       .then((res) => {
         if (!res.ok) throw new Error("Network response was not ok");
         return res.json();
@@ -93,14 +93,16 @@ function MenCloth() {
           <p>No men's clothing found.</p>
         ) : (
           filteredProducts.map((product, index) => (
-            <div className="product-item" key={index}>
+            <div className="product-item" key={product._id || index}>
               <img
                 src={product.image}
                 alt={product.productName}
+                loading="lazy"
                 onError={(e) => {
                   e.target.onerror = null;
                   e.target.src = "/placeholder.png";
                 }}
+                style={{ minHeight: '200px', backgroundColor: '#f0f0f0' }}
               />
               <h3>{product.productName}</h3>
               <p>Size: {product.size}</p>

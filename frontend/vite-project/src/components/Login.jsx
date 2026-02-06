@@ -11,7 +11,7 @@ function Login() {
     e.preventDefault();
 
     try {
-      const response = await fetch('https://backend-gy4y.onrender.com/api/login', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -27,10 +27,13 @@ function Login() {
         return;
       }
 
-      if (data.message === 'Login successful') {
-        localStorage.setItem("isLoggedIn", "true");
+      if (data.token) {
+        localStorage.setItem("token", data.token); // Store the actual token
+        localStorage.setItem("user", JSON.stringify(data.user)); // Store user info
         alert("Login successful");
         navigate('/');
+      } else {
+        alert(data.message || 'Login failed');
       }
     } catch (err) {
       console.error("Error logging in:", err);
