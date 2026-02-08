@@ -6,7 +6,7 @@
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "nodemon ./backend/server.js",
     "client": "npm --prefix ./frontend/vite-project run dev",
-    "build": "npm --prefix ./frontend/vite-project install && npm --prefix ./frontend/vite-project run build && cp -r frontend/vite-project/dist ./dist",
+    "build": "npm --prefix ./frontend/vite-project install && npm --prefix ./frontend/vite-project run build && rm -rf ./dist && mv frontend/vite-project/dist ./dist",
     "seed": "node backend/seeds/runSeeds.js"
   },
   "devDependencies": {
