@@ -17,8 +17,10 @@ const verify = require('./middleware/verifyuser');
 
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://frontend-agyt.onrender.com'
+  'https://frontend-agyt.onrender.com',
+  'https://styleunix.vercel.app'
 ];
+
 
 app.use(cors({
   origin: function (origin, callback) {
