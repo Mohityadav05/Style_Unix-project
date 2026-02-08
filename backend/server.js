@@ -43,9 +43,35 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch(err => console.error("❌ MongoDB error:", err));
+// --- MONGODB CONNECTION (Optimized for Serverless) ---
+let cachedDb = null;
+
+async function connectToDatabase() {
+  if (cachedDb && mongoose.connection.readyState === 1) {
+    return cachedDb;
+  }
+
+  console.log("Creating new MongoDB connection...");
+  const db = await mongoose.connect(process.env.MONGO_URI, {
+    // These options are recommended for serverless to handle connection churn
+    serverSelectionTimeoutMS: 5000,
+    connectTimeoutMS: 10000,
+  });
+  cachedDb = db;
+  return db;
+}
+
+// Middleware to ensure DB connection before handling requests
+app.use(async (req, res, next) => {
+  try {
+    await connectToDatabase();
+    next();
+  } catch (err) {
+    console.error("❌ MongoDB connection error:", err);
+    res.status(500).json({ error: "Database connection failed", details: err.message });
+  }
+});
+
 
 const buildPath = path.resolve(__dirname, 'frontend-build');
 app.use(express.static(buildPath));
