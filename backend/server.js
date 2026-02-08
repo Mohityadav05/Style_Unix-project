@@ -182,13 +182,47 @@ app.get('/api/me', verify, async (req, res) => {
 
 app.get('/api/products', async (req, res) => {
   const category = req.query.category;
+  console.log(`🔍 Fetching products for category: ${category || 'all'}`);
   try {
     const products = await Product.find(category ? { category } : {});
+    console.log(`✅ Found ${products.length} products`);
     res.json(products);
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch products" });
+    console.error("❌ Error fetching products:", err);
+    res.status(500).json({ error: "Failed to fetch products", details: err.message });
   }
 });
+
+// --- DIAGNOSTIC ENDPOINT ---
+app.get('/api/debug-db', async (req, res) => {
+  try {
+    const state = mongoose.connection.readyState;
+    const states = ["disconnected", "connected", "connecting", "disconnecting"];
+
+    let info = {
+      connectionState: states[state] || "unknown",
+      databaseName: mongoose.connection.name,
+      env: {
+        MONGO_URI_PRESENT: !!process.env.MONGO_URI,
+        NODE_ENV: process.env.NODE_ENV
+      }
+    };
+
+    if (state === 1) { // connected
+      const collections = await mongoose.connection.db.listCollections().toArray();
+      info.collections = collections.map(c => c.name);
+      info.productCount = await Product.countDocuments();
+
+      // Sample product to check structure
+      info.sampleProduct = await Product.findOne();
+    }
+
+    res.json(info);
+  } catch (err) {
+    res.status(500).json({ error: "Debug failed", details: err.message });
+  }
+});
+
 
 app.get('/api/products/search', async (req, res) => {
   const query = req.query.q;
