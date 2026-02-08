@@ -7,7 +7,7 @@
         },
         {
             "source": "/(.*)",
-            "destination": "/frontend/vite-project/index.html"
+            "destination": "/index.html"
         }
     ]
 }
