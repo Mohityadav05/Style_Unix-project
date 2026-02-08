@@ -185,9 +185,19 @@ app.get('/api/test/categories', async (req, res) => {
   }
 });
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(buildPath, 'index.html'));
+// --- 404 HANDLING (ONLY FOR API ROUTES) ---
+// Note: Frontend routing is handled by vercel.json rewrites
+
+app.get('/api/*', (req, res) => {
+  res.status(404).json({ message: "API endpoint not found" });
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+// --- EXPORT FOR VERCEL ---
+module.exports = app;
+
+// --- SERVER START (Local Development Only) ---
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+}
+
