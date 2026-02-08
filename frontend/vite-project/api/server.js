@@ -1,0 +1,263 @@
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
+
+const express = require('express');
+const app = express();
+const cors = require('cors');
+const mongoose = require('mongoose');
+const User = require('./Models/User');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const Product = require('./Models/Product');
+const cookieParser = require('cookie-parser');
+// path already required at top
+const verify = require('./middleware/verifyuser');
+
+
+
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://frontend-agyt.onrender.com',
+  'https://styleunix.vercel.app'
+];
+
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // allow requests with no origin (like Postman or server-to-server)
+    if (!origin) return callback(null, true);
+
+    // allow if origin is in allowedOrigins
+    if (allowedOrigins.some(o => origin.startsWith(o))) {
+      return callback(null, true);
+    }
+
+    // otherwise block
+    return callback(new Error(`CORS error: Origin ${origin} not allowed`));
+  },
+  credentials: true
+}));
+
+
+app.use(cookieParser());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// --- MONGODB CONNECTION (Optimized for Serverless) ---
+let cachedDb = null;
+
+async function connectToDatabase() {
+  if (cachedDb && mongoose.connection.readyState === 1) {
+    return cachedDb;
+  }
+
+  console.log("Creating new MongoDB connection...");
+  const db = await mongoose.connect(process.env.MONGO_URI, {
+    // These options are recommended for serverless to handle connection churn
+    serverSelectionTimeoutMS: 5000,
+    connectTimeoutMS: 10000,
+  });
+  cachedDb = db;
+  return db;
+}
+
+// Middleware to ensure DB connection before handling requests
+app.use(async (req, res, next) => {
+  try {
+    await connectToDatabase();
+    next();
+  } catch (err) {
+    console.error("❌ MongoDB connection error:", err);
+    res.status(500).json({ error: "Database connection failed", details: err.message });
+  }
+});
+
+
+const buildPath = path.resolve(__dirname, 'frontend-build');
+app.use(express.static(buildPath));
+
+// --- AUTHENTICATION ROUTES ---
+
+// SIGNUP
+app.post('/api/signup', async (req, res) => {
+  try {
+    const { name, username, email, password, phone } = req.body;
+
+    // 1. Validation
+    if (!name || !username || !email || !password || !phone) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // 2. Check existing user
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+    if (existingUser) {
+      return res.status(400).json({ message: "User with this email or username already exists" });
+    }
+
+    // 3. Hash Password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // 4. Create User
+    const user = await User.create({
+      name,
+      username,
+      email,
+      password: hashedPassword,
+      phone
+    });
+
+    res.status(201).json({ message: "Signup successful", user });
+  } catch (err) {
+    console.error("Signup Error:", err);
+    res.status(500).json({ message: "Signup failed", error: err.message });
+  }
+});
+
+// LOGIN
+app.post('/api/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
+
+    // 1. Find User
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // 2. Compare Password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) return res.status(401).json({ message: "Invalid credentials" });
+
+    // 3. Generate Token
+    const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET || 'secretkey', {
+      expiresIn: '1d'
+    });
+
+    // 4. Set Cookie (Optional redundancy)
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'none',
+      maxAge: 24 * 60 * 60 * 1000
+    });
+
+    // 5. Return Token (Critical for frontend localStorage)
+    res.status(200).json({
+      message: "Login successful",
+      token,
+      user: { id: user._id, name: user.name, email: user.email }
+    });
+
+  } catch (err) {
+    console.error("Login Error:", err);
+    res.status(500).json({ message: "Login failed", error: err.message });
+  }
+});
+
+// LOGOUT
+app.post('/api/logout', (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'none'
+  });
+  res.status(200).json({ message: "Logout successful" });
+});
+
+// CHECK AUTH (Me)
+app.get('/api/me', verify, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    // Note: verify middleware sets req.user. We assume payload has 'id'.
+    // In previous code check, payload was { email }. I updated sign to include { id }.
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.get('/api/products', async (req, res) => {
+  const category = req.query.category;
+  console.log(`🔍 Fetching products for category: ${category || 'all'}`);
+  try {
+    const products = await Product.find(category ? { category } : {});
+    console.log(`✅ Found ${products.length} products`);
+    res.json(products);
+  } catch (err) {
+    console.error("❌ Error fetching products:", err);
+    res.status(500).json({ error: "Failed to fetch products", details: err.message });
+  }
+});
+
+// --- DIAGNOSTIC ENDPOINT ---
+app.get('/api/debug-db', async (req, res) => {
+  try {
+    const state = mongoose.connection.readyState;
+    const states = ["disconnected", "connected", "connecting", "disconnecting"];
+
+    let info = {
+      connectionState: states[state] || "unknown",
+      databaseName: mongoose.connection.name,
+      env: {
+        MONGO_URI_PRESENT: !!process.env.MONGO_URI,
+        NODE_ENV: process.env.NODE_ENV
+      }
+    };
+
+    if (state === 1) { // connected
+      const collections = await mongoose.connection.db.listCollections().toArray();
+      info.collections = collections.map(c => c.name);
+      info.productCount = await Product.countDocuments();
+
+      // Sample product to check structure
+      info.sampleProduct = await Product.findOne();
+    }
+
+    res.json(info);
+  } catch (err) {
+    res.status(500).json({ error: "Debug failed", details: err.message });
+  }
+});
+
+
+app.get('/api/products/search', async (req, res) => {
+  const query = req.query.q;
+  try {
+    const results = await Product.find({
+      productName: { $regex: query, $options: 'i' }
+    });
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to search products" });
+  }
+});
+
+app.get('/api/test/categories', async (req, res) => {
+  try {
+    const categories = await Product.distinct("category");
+    res.json(categories);
+  } catch (err) {
+    res.status(500).json({ error: "Error fetching categories", details: err.message });
+  }
+});
+
+// --- 404 HANDLING (ONLY FOR API ROUTES) ---
+// Note: Frontend routing is handled by vercel.json rewrites
+
+app.get('/api/*', (req, res) => {
+  res.status(404).json({ message: "API endpoint not found" });
+});
+
+// --- EXPORT FOR VERCEL ---
+module.exports = app;
+
+// --- SERVER START (Local Development Only) ---
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+}
+
