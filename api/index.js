@@ -1,4 +1,4 @@
-const app = require('../backend/server.cjs');
+import app from '../backend/server.cjs';
 
 console.log("🚀 Vercel API function starting...");
 
@@ -9,5 +9,4 @@ app.get('/api/test-vercel', (req, res) => res.json({
     time: new Date().toISOString()
 }));
 
-module.exports = app;
-
+export default app;
