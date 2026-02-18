@@ -5,13 +5,13 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const mongoose = require('mongoose');
-const User = require('./Models/User');
+const User = require('./Models/User.cjs');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const Product = require('./Models/Product');
+const Product = require('./Models/Product.cjs');
 const cookieParser = require('cookie-parser');
 // path already required at top
-const verify = require('./middleware/verifyuser');
+const verify = require('./middleware/verifyuser.cjs');
 
 
 
@@ -73,8 +73,10 @@ app.use(async (req, res, next) => {
 });
 
 
-const buildPath = path.resolve(__dirname, 'frontend-build');
-app.use(express.static(buildPath));
+const buildPath = path.resolve(__dirname, '../dist');
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.use(express.static(buildPath));
+}
 
 // --- AUTHENTICATION ROUTES ---
 

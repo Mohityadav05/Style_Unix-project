@@ -1,4 +1,4 @@
-const app = require('../backend/server');
+const app = require('../backend/server.cjs');
 
 console.log("🚀 Vercel API function starting...");
 
