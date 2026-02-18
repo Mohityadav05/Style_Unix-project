@@ -43,6 +43,13 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Add Vercel logging
+app.use((req, res, next) => {
+  console.log(`🚀 [Incoming] ${req.method} ${req.url}`);
+  next();
+});
+
+
 // --- MONGODB CONNECTION (Optimized for Serverless) ---
 let cachedDb = null;
 
