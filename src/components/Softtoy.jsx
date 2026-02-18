@@ -24,7 +24,7 @@ function Softtoy() {
   };
 
   useEffect(() => {
-    fetch(`/api/products?category=softtoy`)
+    fetch(`/api/products?category=soft-toys`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch soft toys");
         return res.json();
