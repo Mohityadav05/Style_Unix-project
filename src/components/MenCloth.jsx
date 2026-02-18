@@ -24,7 +24,7 @@ function MenCloth() {
   };
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/products?category=men-clothing`)
+    fetch(`/api/products?category=mensdress`)
       .then((res) => {
         if (!res.ok) throw new Error("Network response was not ok");
         return res.json();

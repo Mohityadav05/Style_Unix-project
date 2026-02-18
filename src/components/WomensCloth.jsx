@@ -25,7 +25,7 @@ function WomensCloth() {
   };
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/products?category=womendress`)
+    fetch(`/api/products?category=womendress`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch women's products");
         return res.json();

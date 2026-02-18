@@ -24,7 +24,7 @@ function Accessories() {
   };
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/products?category=accessories`)
+    fetch(`/api/products?category=accessories`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch accessories");
         return res.json();

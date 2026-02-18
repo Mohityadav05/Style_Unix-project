@@ -24,7 +24,7 @@ function Bags() {
   };
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/products?category=bags`)
+    fetch(`/api/products?category=bags`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch bags");
         return res.json();

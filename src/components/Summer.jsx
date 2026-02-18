@@ -24,7 +24,7 @@ function Summer() {
   };
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/products?category=summer`)
+    fetch(`/api/products?category=summer`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch summer products");
         return res.json();

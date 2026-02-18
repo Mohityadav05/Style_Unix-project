@@ -11,7 +11,7 @@ function Login() {
     e.preventDefault();
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/login`, {
+      const response = await fetch(`/api/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -64,7 +64,7 @@ function Login() {
         <input type="submit" value={"Login"} className="login-button" />
         <br />
         <p className="login-font1">Don't have an account?</p>
-        <a href="/signup">Sign Up</a>
+        <Link to="/signup">Sign Up</Link>
       </form>
     </div>
   );

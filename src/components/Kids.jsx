@@ -24,7 +24,7 @@ function Kids() {
   };
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/products?category=kids`)
+    fetch(`/api/products?category=kids`)
       .then((res) => {
         if (!res.ok) throw new Error("Network error");
         return res.json();

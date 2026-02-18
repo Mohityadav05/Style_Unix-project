@@ -24,7 +24,7 @@ function Softtoy() {
   };
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/products?category=soft-toys`)
+    fetch(`/api/products?category=softtoy`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch soft toys");
         return res.json();
