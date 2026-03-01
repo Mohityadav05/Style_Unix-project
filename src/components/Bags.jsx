@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./Bags.css";
 import { useNavigate } from "react-router-dom";
+import FilterSidebar from "./FilterSidebar";
 
 function Bags() {
   const navigate = useNavigate();
@@ -8,9 +9,10 @@ function Bags() {
   const [selectedPriceRange, setSelectedPriceRange] = useState("all");
   const [selectedSize, setSelectedSize] = useState("all");
 
-  const isLoggedIn = !!localStorage.getItem("token");
+  const isLoggedIn = localStorage.getItem("token");
 
-  const handleAddToCart = (product) => {
+  const handleAddToCart = (e, product) => {
+    e.stopPropagation();
     if (!isLoggedIn) {
       alert("Please login to add items to the cart.");
       navigate("/login");
@@ -23,10 +25,16 @@ function Bags() {
     alert(`${product.productName} added to cart`);
   };
 
+  const handleProductClick = (productId) => {
+    if (productId) {
+      navigate(`/product/${productId}`);
+    }
+  };
+
   useEffect(() => {
     fetch(`/api/products?category=bags`)
       .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch bags");
+        if (!res.ok) throw new Error("Failed to fetch bags products");
         return res.json();
       })
       .then((data) => setProducts(data))
@@ -35,56 +43,42 @@ function Bags() {
 
   const filteredProducts = products.filter((product) => {
     const price = product.price;
-    const size = product.size?.toLowerCase();
+    const size = product.size;
 
-    const matchPrice =
+    const matchesPrice =
       selectedPriceRange === "all" ||
       (selectedPriceRange === "0-500" && price <= 500) ||
       (selectedPriceRange === "500-1000" && price > 500 && price <= 1000) ||
       (selectedPriceRange === "1000-2000" && price > 1000 && price <= 2000);
 
-    const matchSize =
-      selectedSize === "all" || size === selectedSize.toLowerCase();
+    const matchesSize =
+      selectedSize === "all" ||
+      String(size).toLowerCase() === selectedSize.toLowerCase();
 
-    return matchPrice && matchSize;
+    return matchesPrice && matchesSize;
   });
 
   return (
     <div className="bags-container">
-      <div className="filter-container">
-        <button className="home" onClick={() => navigate("/")}>Home</button>
-
-        <select
-          className="filter-dropdown"
-          value={selectedSize}
-          onChange={(e) => setSelectedSize(e.target.value)}
-        >
-          <option value="all">Filter by Size</option>
-          <option value="S">Small</option>
-          <option value="M">Medium</option>
-          <option value="L">Large</option>
-        </select>
-
-        <select
-          className="filter-dropdown"
-          value={selectedPriceRange}
-          onChange={(e) => setSelectedPriceRange(e.target.value)}
-        >
-          <option value="all">Filter by Price</option>
-          <option value="0-500">₹0 - ₹500</option>
-          <option value="500-1000">₹500 - ₹1000</option>
-          <option value="1000-2000">₹1000 - ₹2000</option>
-        </select>
-
-        <button className="home" onClick={() => navigate("/cart")}>Go to Cart</button>
-      </div>
+      <FilterSidebar
+        selectedPriceRange={selectedPriceRange}
+        setSelectedPriceRange={setSelectedPriceRange}
+        selectedSize={selectedSize}
+        setSelectedSize={setSelectedSize}
+        availableSizes={["S", "M", "L"]}
+      />
 
       <div className="product-container">
         {filteredProducts.length === 0 ? (
-          <p>No bags found for selected filters.</p>
+          <p>No bags found.</p>
         ) : (
-          filteredProducts.map((product, index) => (
-            <div className="product-item" key={product._id || index}>
+          filteredProducts.map((product) => (
+            <div
+              className="product-item"
+              key={product._id}
+              onClick={() => handleProductClick(product._id)}
+              style={{ cursor: 'pointer' }}
+            >
               <img
                 src={product.image}
                 alt={product.productName}
@@ -97,11 +91,8 @@ function Bags() {
               />
               <h3>{product.productName}</h3>
               <p>₹{product.price}</p>
-              {product.size && <p>Size: {product.size}</p>}
-              <button
-                className="add-to-cart-button"
-                onClick={() => handleAddToCart(product)}
-              >
+              <p>Size: {product.size}</p>
+              <button className="add-to-cart" onClick={(e) => handleAddToCart(e, product)}>
                 Add to Cart
               </button>
             </div>

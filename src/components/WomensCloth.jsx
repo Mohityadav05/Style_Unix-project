@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./WomensCloth.css";
 import { useNavigate } from "react-router-dom";
+import FilterSidebar from "./FilterSidebar";
 
 function WomensCloth() {
   const navigate = useNavigate();
@@ -11,7 +12,8 @@ function WomensCloth() {
 
   const isLoggedIn = localStorage.getItem("token");
 
-  const handleAddToCart = (product) => {
+  const handleAddToCart = (e, product) => {
+    e.stopPropagation();
     if (!isLoggedIn) {
       alert("Please login to add items to the cart.");
       navigate("/login");
@@ -22,6 +24,12 @@ function WomensCloth() {
     cart.push(product);
     localStorage.setItem("cart", JSON.stringify(cart));
     alert(`${product.productName} added to cart`);
+  };
+
+  const handleProductClick = (productId) => {
+    if (productId) {
+      navigate(`/product/${productId}`);
+    }
   };
 
   useEffect(() => {
@@ -59,42 +67,25 @@ function WomensCloth() {
 
   return (
     <div className="womens-cloth">
-      <div className="filter-container">
-        <button className="home" onClick={() => navigate("/")}>Home</button>
-
-        <select
-          className="filter-dropdown"
-          value={selectedPriceRange}
-          onChange={(e) => setSelectedPriceRange(e.target.value)}
-        >
-          <option value="all">Filter by Price</option>
-          <option value="0-500">₹0 - ₹500</option>
-          <option value="500-1000">₹500 - ₹1000</option>
-          <option value="1000-2000">₹1000 - ₹2000</option>
-        </select>
-
-        <select
-          className="filter-dropdown"
-          value={selectedSize}
-          onChange={(e) => setSelectedSize(e.target.value)}
-        >
-          <option value="all">Filter by Size</option>
-          <option value="S">S</option>
-          <option value="M">M</option>
-          <option value="L">L</option>
-          <option value="XL">XL</option>
-          <option value="Free Size">Free Size</option>
-        </select>
-
-        <button className="home" onClick={() => navigate("/cart")}>Go to Cart</button>
-      </div>
+      <FilterSidebar
+        selectedPriceRange={selectedPriceRange}
+        setSelectedPriceRange={setSelectedPriceRange}
+        selectedSize={selectedSize}
+        setSelectedSize={setSelectedSize}
+        availableSizes={["S", "M", "L", "XL", "Free Size"]}
+      />
 
       <div className="product-container">
         {loading ? (
           <p>Loading women’s clothing...</p>
         ) : filteredProducts.length > 0 ? (
-          filteredProducts.map((product, index) => (
-            <div className="product-item" key={product._id || index}>
+          filteredProducts.map((product) => (
+            <div
+              className="product-item"
+              key={product._id}
+              onClick={() => handleProductClick(product._id)}
+              style={{ cursor: 'pointer' }}
+            >
               <img
                 src={product.image}
                 alt={product.productName}
@@ -108,7 +99,7 @@ function WomensCloth() {
               <h3>{product.productName}</h3>
               <p>₹{product.price}</p>
               <p>Size: {product.size}</p>
-              <button className="add-to-cart" onClick={() => handleAddToCart(product)}>
+              <button className="add-to-cart" onClick={(e) => handleAddToCart(e, product)}>
                 Add to Cart
               </button>
             </div>

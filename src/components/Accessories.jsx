@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./Accessories.css";
 import { useNavigate } from "react-router-dom";
+import FilterSidebar from "./FilterSidebar";
 
 function Accessories() {
   const navigate = useNavigate();
@@ -8,9 +9,10 @@ function Accessories() {
   const [selectedPriceRange, setSelectedPriceRange] = useState("all");
   const [selectedSize, setSelectedSize] = useState("all");
 
-  const isLoggedIn = !!localStorage.getItem("token");
+  const isLoggedIn = localStorage.getItem("token");
 
-  const handleAddToCart = (product) => {
+  const handleAddToCart = (e, product) => {
+    e.stopPropagation();
     if (!isLoggedIn) {
       alert("Please login to add items to the cart.");
       navigate("/login");
@@ -23,6 +25,12 @@ function Accessories() {
     alert(`${product.productName} added to cart`);
   };
 
+  const handleProductClick = (productId) => {
+    if (productId) {
+      navigate(`/product/${productId}`);
+    }
+  };
+
   useEffect(() => {
     fetch(`/api/products?category=accessories`)
       .then((res) => {
@@ -30,64 +38,47 @@ function Accessories() {
         return res.json();
       })
       .then((data) => setProducts(data))
-      .catch((err) => console.error("❌ Failed to load accessories:", err));
+      .catch((err) => console.error("Error fetching accessories:", err));
   }, []);
 
   const filteredProducts = products.filter((product) => {
     const price = product.price;
-    const size = product.size?.toLowerCase();
+    const size = product.size;
 
     const matchesPrice =
       selectedPriceRange === "all" ||
       (selectedPriceRange === "0-500" && price <= 500) ||
       (selectedPriceRange === "500-1000" && price > 500 && price <= 1000) ||
-      (selectedPriceRange === "1000-2000" && price > 1000 && price <= 2000) ||
-      (selectedPriceRange === "2000-5000" && price > 2000 && price <= 5000);
+      (selectedPriceRange === "1000-2000" && price > 1000 && price <= 2000);
 
     const matchesSize =
-      selectedSize === "all" || size === selectedSize.toLowerCase();
+      selectedSize === "all" ||
+      String(size).toLowerCase() === selectedSize.toLowerCase();
 
     return matchesPrice && matchesSize;
   });
 
   return (
     <div className="accessories-container">
-      <div className="filter-container">
-        <button className="home" onClick={() => navigate("/")}>Home</button>
-
-        <select
-          className="filter-dropdown"
-          value={selectedSize}
-          onChange={(e) => setSelectedSize(e.target.value)}
-        >
-          <option value="all">Filter by Size</option>
-          <option value="S">Small (S)</option>
-          <option value="M">Medium (M)</option>
-          <option value="L">Large (L)</option>
-          <option value="Universal">Universal</option>
-        </select>
-
-        <select
-          className="filter-dropdown"
-          value={selectedPriceRange}
-          onChange={(e) => setSelectedPriceRange(e.target.value)}
-        >
-          <option value="all">Filter by Price</option>
-          <option value="0-500">₹0 - ₹500</option>
-          <option value="500-1000">₹500 - ₹1000</option>
-          <option value="1000-2000">₹1000 - ₹2000</option>
-          <option value="2000-5000">₹2000 - ₹5000</option>
-        </select>
-
-        <button className="home" onClick={() => navigate("/cart")}>Go to Cart</button>
-      </div>
+      <FilterSidebar
+        selectedPriceRange={selectedPriceRange}
+        setSelectedPriceRange={setSelectedPriceRange}
+        selectedSize={selectedSize}
+        setSelectedSize={setSelectedSize}
+        availableSizes={["S", "M", "L", "Universal"]}
+      />
 
       <div className="product-container">
         {filteredProducts.length === 0 ? (
-          <p>No accessories found with selected filters.</p>
+          <p>No accessories found.</p>
         ) : (
-          filteredProducts.map((product, index) => (
-            <div className="product-item" key={product._id || index}>
+          filteredProducts.map((product) => (
+            <div
+              className="product-item"
+              key={product._id}
+              onClick={() => handleProductClick(product._id)}
+              style={{ cursor: 'pointer' }}
+            >
               <img
                 src={product.image}
                 alt={product.productName}
@@ -101,10 +92,7 @@ function Accessories() {
               <h3>{product.productName}</h3>
               <p>₹{product.price}</p>
               <p>Size: {product.size}</p>
-              <button
-                className="add-to-cart-button"
-                onClick={() => handleAddToCart(product)}
-              >
+              <button className="add-to-cart" onClick={(e) => handleAddToCart(e, product)}>
                 Add to Cart
               </button>
             </div>

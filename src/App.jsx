@@ -20,33 +20,35 @@ import Cart from './components/Cart';
 import Buy from './components/Buy';
 import Payment from './components/Payment';
 import Search from './components/Search';
+import ProductDetail from './components/ProductDetail';
 
 function App() {
   const [count, setCount] = useState(0)
 
   return (
     <>
-    <Router>
-      <Routes>
-        <Route path="/" element={<><Navbar /><Hero /><Cards /><Footer /></>} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/womencloth" element={<><Navbar/><WomensCloth/></>} />
-        <Route path="/mencloth" element={<><Navbar/><MenCloth/></>} />
-        <Route path="/kids" element={<><Navbar/><Kids/></>} />
-        <Route path="/summer" element={<><Navbar/><Summer/></>} />
-        <Route path="/winter" element={<><Navbar/><Winter/></>} />
-        <Route path="/footwear" element={<><Navbar/><Footwear/></>} />
-        <Route path="/accessories" element={<><Navbar/><Accessories/></>} />
-        <Route path="/bags" element={<><Navbar/><Bags/></>} />
-        <Route path="/softtoy" element={<><Navbar/><Softtoy/></>} />
-        <Route path="/cart/" element={<><Navbar/><Cart/></>} />
-        <Route path="/Buy" element={<><Navbar/><Buy/></>} />
-        <Route path="/Payment" element={<><Navbar/><Payment/></>} />
-        <Route path='/Search' element={<><Search/></>} />
-        <Route path="*" element={<h1>404 Not Found</h1>} />
-      </Routes>
-    </Router>
+      <Router>
+        <Routes>
+          <Route path="/" element={<><Navbar /><Hero /><Cards /><Footer /></>} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/womencloth" element={<><Navbar /><WomensCloth /></>} />
+          <Route path="/mencloth" element={<><Navbar /><MenCloth /></>} />
+          <Route path="/kids" element={<><Navbar /><Kids /></>} />
+          <Route path="/summer" element={<><Navbar /><Summer /></>} />
+          <Route path="/winter" element={<><Navbar /><Winter /></>} />
+          <Route path="/footwear" element={<><Navbar /><Footwear /></>} />
+          <Route path="/accessories" element={<><Navbar /><Accessories /></>} />
+          <Route path="/bags" element={<><Navbar /><Bags /></>} />
+          <Route path="/softtoy" element={<><Navbar /><Softtoy /></>} />
+          <Route path="/cart/" element={<><Navbar /><Cart /></>} />
+          <Route path="/Buy" element={<><Navbar /><Buy /></>} />
+          <Route path="/Payment" element={<><Navbar /><Payment /></>} />
+          <Route path="/product/:id" element={<><Navbar /><ProductDetail /><Footer /></>} />
+          <Route path='/Search' element={<><Search /></>} />
+          <Route path="*" element={<h1>404 Not Found</h1>} />
+        </Routes>
+      </Router>
     </>
   )
 }
